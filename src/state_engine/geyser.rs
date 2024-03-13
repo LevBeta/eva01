@@ -163,7 +163,7 @@ impl GeyserService {
                         if let Ok(account_owner_pk) = Pubkey::try_from(account.owner.clone()) {
                             if account_owner_pk == state_engine.get_marginfi_program_id() {
                                 let maybe_update =
-                                    Self::process_marginfi_account_update(state_engine, &account)?;
+                                    Self::process_marginfi_account_update(state_engine, account)?;
                                 if let Some(update) = maybe_update {
                                     geyser_update_request.merge(update);
                                 }
@@ -173,12 +173,12 @@ impl GeyserService {
 
                         if let Ok(address) = Pubkey::try_from(account.pubkey.clone()) {
                             if state_engine.is_tracked_oracle(&address) {
-                                Self::process_oracle_account_update(state_engine, &account)?;
+                                Self::process_oracle_account_update(state_engine, account)?;
                                 processed = true;
                             }
 
                             if state_engine.is_tracked_token_account(&address) {
-                                Self::process_token_account_update(state_engine, &account)?;
+                                Self::process_token_account_update(state_engine, account)?;
                                 processed = true;
                             }
                         }
@@ -252,8 +252,8 @@ impl GeyserService {
         Ok(())
     }
     fn process_token_account_update(
-        state_engine: &Arc<StateEngineService>,
-        account_update: &SubscribeUpdateAccountInfo,
+        _state_engine: &Arc<StateEngineService>,
+        _account_update: &SubscribeUpdateAccountInfo,
     ) -> Result<(), GeyserServiceError> {
         Ok(())
     }
