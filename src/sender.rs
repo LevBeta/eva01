@@ -44,7 +44,7 @@ pub fn aggressive_send_tx(
     transaction: &impl SerializableTransaction,
     cfg: SenderCfg,
 ) -> Result<Signature, Box<dyn Error>> {
-    let signature = transaction.get_signature().clone();
+    let signature = *transaction.get_signature();
 
     info!("Sending transaction: {}", signature.to_string());
 
@@ -63,7 +63,7 @@ pub fn aggressive_send_tx(
         }
     }
 
-    (0..cfg.spam_times).into_iter().try_for_each(|_| {
+    (0..cfg.spam_times).try_for_each(|_| {
         rpc.send_transaction(transaction)?;
         Ok::<_, Box<dyn Error>>(())
     })?;

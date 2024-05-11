@@ -260,12 +260,9 @@ impl EvaLiquidator {
                 self.rebalance_with_recovery().await?;
             }
 
-            match self.evaluate_all_accounts() {
-                Err(e) => {
-                    error!("Error processing accounts: {:?}", e);
-                }
-                _ => {}
-            };
+            if let Err(e) = self.evaluate_all_accounts() {
+                error!("Error processing accounts: {:?}", e);
+            }
 
             tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
         }
@@ -353,7 +350,7 @@ impl EvaLiquidator {
             .state_engine
             .banks
             .iter()
-            .map(|e| e.key().clone())
+            .map(|e| *e.key())
             .filter(|bank_pk| self.swap_mint_bank_pk != *bank_pk)
             .collect::<Vec<_>>();
 
@@ -396,7 +393,7 @@ impl EvaLiquidator {
 
         let value = self.get_value(
             amount,
-            &bank_pk,
+            bank_pk,
             RequirementType::Equity,
             BalanceSide::Assets,
         )?;
@@ -543,7 +540,7 @@ impl EvaLiquidator {
             .get_liquidator_account()?
             .get_balance_for_bank(&bank_pk)?;
 
-        if matches!(balance, None) || matches!(balance, Some((_, BalanceSide::Assets))) {
+        if balance.is_none() || matches!(balance, Some((_, BalanceSide::Assets))) {
             warn!("No liability found for bank {}", bank_pk);
             return Ok(());
         }

@@ -101,7 +101,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         state_eng_handle.await.unwrap();
     });
 
-    handle.join().unwrap();
+    let _ = handle.join().unwrap();
 
     warn!("eva exited");
 

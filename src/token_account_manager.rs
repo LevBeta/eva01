@@ -95,11 +95,11 @@ impl TokenAccountManager {
                 |mint| -> Result<(Pubkey, Pubkey), TokenAccountManagerError> {
                     Ok((
                         *mint,
-                        self.get_address_for_mint(*mint).ok_or_else(|| {
+                        self.get_address_for_mint(*mint).ok_or(
                             TokenAccountManagerError::SetupFailed(
                                 "Failed to find token account address",
-                            )
-                        })?,
+                            ),
+                        )?,
                     ))
                 },
             )
@@ -149,7 +149,6 @@ impl TokenAccountManager {
                 .par_iter()
                 .chunks(MAX_INIT_TA_IXS)
                 .try_for_each(|chunk| {
-                    let recent_blockhash = recent_blockhash.clone();
                     let rpc = rpc_client.clone();
 
                     let ixs = chunk.iter().map(|ix| (*ix).clone()).collect::<Vec<_>>();

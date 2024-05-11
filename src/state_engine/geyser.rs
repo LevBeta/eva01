@@ -166,8 +166,6 @@ impl GeyserService {
 
                 ping_id += 1;
             }
-
-            error!("Ping loop ended");
         });
 
         while let Some(msg) = subscribe_rx.next().await {
@@ -199,7 +197,7 @@ impl GeyserService {
             trace!("Processed message in {:?}", start.elapsed());
         }
 
-        handle.await;
+        let _ = handle.await;
 
         error!("Geyser subscription ended");
 

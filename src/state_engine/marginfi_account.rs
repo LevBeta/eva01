@@ -311,9 +311,9 @@ impl MarginfiAccountWrapper {
 
         trace!("Ordered active banks: {:?}", ordered_active_banks);
 
-        let bank_accounts_and_oracles = ordered_active_banks
+        let bank_accounts_and_oracles: Vec<Pubkey> = ordered_active_banks
             .iter()
-            .map(|b| {
+            .flat_map(|b| {
                 let bank_ref = self.banks.get(b).expect("Bank not found");
                 let bank_wrapper = bank_ref.value().read().expect("RwLock error");
 
@@ -322,8 +322,7 @@ impl MarginfiAccountWrapper {
                     bank_wrapper.bank.config.oracle_keys[0],
                 ]
             })
-            .flatten()
-            .collect::<Vec<Pubkey>>();
+            .collect();
 
         trace!("Bank accounts and oracles: {:?}", bank_accounts_and_oracles);
 
@@ -409,9 +408,9 @@ impl MarginfiAccountWrapper {
         let underwater_maint_value =
             maintenence_health / (asset_maint_weight - liab_maint_weight * liquidation_discount);
 
-        let (asset_amount, _) = self.get_balance_for_bank_2(&asset_bank_pk)?;
+        let (asset_amount, _) = self.get_balance_for_bank_2(asset_bank_pk)?;
 
-        let (_, liab_amount) = self.get_balance_for_bank_2(&liab_bank_pk)?;
+        let (_, liab_amount) = self.get_balance_for_bank_2(liab_bank_pk)?;
 
         let asset_value = asset_bank.read().unwrap().calc_value(
             asset_amount,
